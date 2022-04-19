@@ -85,5 +85,5 @@ docker build -t re-encrypt-utility .
 
 7. Run docker image using below command.
 ```
-docker run -p 8081:8081 -it --net=host re-encrypt-docker
+docker run -p 8081:8081 -it --net=host re-encrypt-utility
 ```
