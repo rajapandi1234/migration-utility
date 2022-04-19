@@ -1,0 +1,13 @@
+package com.reencryptutility;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+
+@SpringBootTest
+class ReEncryptUtilityApplicationTests {
+
+	@Test
+	void contextLoads() {
+	}
+
+}
