@@ -27,10 +27,10 @@ Scenario 2- Reads the database and object store data from the upgraded version o
 
 ### Linux (Docker) 
 
-1. Download the latest version of [re-encrypt-utility](https://github.com/kameshsr/re-encrypt-utility.git)
+1. Download the latest version of [migration-utility](https://github.com/kameshsr/migration-utility)
 
 ```
-git clone https://github.com/kameshsr/re-encrypt-utility.git
+git clone https://github.com/kameshsr/migration-utility
 ```
 
 2. Two use Scenario 1 change isNewDatabase to true and Scenario 2 change isNewDatabase to false.
@@ -59,6 +59,13 @@ encryptBaseUrl={encryptBaseUrl}
 object.store.s3.url={object store url}
 object.store.s3.accesskey={object store accesskey}
 object.store.s3.secretkey={object store secretkey}
+
+decryptAppId={app id for decryption}
+decryptReferenceId={reference id for decryption}
+
+encryptAppId={app id for encryption}
+encryptReferenceId={reference id for encryption}
+
 ```
 
 4. For Scenario 1 (Two Environments), change the below properties in the application.properties.

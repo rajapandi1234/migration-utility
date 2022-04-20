@@ -133,6 +133,17 @@ public class ReEncrypt {
     @Value("${object.store.s3.use.account.as.bucketname:false}")
     private boolean useAccountAsBucketname;
 
+    @Value("${decryptAppId}")
+    private String decryptAppId;
+    @Value("${decryptReferenceId}")
+    private String decryptReferenceId;
+
+    @Value("${encryptAppId}")
+    private String encryptAppId;
+    @Value("${encryptReferenceId}")
+    private String encryptReferenceId;
+
+
     private int retry = 0;
     private AmazonS3 connection = null;
     private static final String SUFFIX = "/";
@@ -188,9 +199,9 @@ public class ReEncrypt {
         generateToken(decryptBaseUrl);
         try {
             CryptoManagerRequestDTO dto = new CryptoManagerRequestDTO();
-            dto.setApplicationId("REGISTRATION");
+            dto.setApplicationId(decryptAppId);
             dto.setData(new String(originalInput, StandardCharsets.UTF_8));
-            dto.setReferenceId("");
+            dto.setReferenceId(decryptReferenceId);
             dto.setTimeStamp(localDateTime);
             RequestWrapper<CryptoManagerRequestDTO> requestKernel = new RequestWrapper<>();
             requestKernel.setRequest(dto);
@@ -223,9 +234,9 @@ public class ReEncrypt {
         byte[] encryptedBytes = null;
         try {
             CryptoManagerRequestDTO dto = new CryptoManagerRequestDTO();
-            dto.setApplicationId("PRE_REGISTRATION");
+            dto.setApplicationId(encryptAppId);
             dto.setData(new String(originalInput, StandardCharsets.UTF_8));
-            dto.setReferenceId("INDIVIDUAL");
+            dto.setReferenceId(encryptReferenceId);
             dto.setTimeStamp(localDateTime);
             dto.setPrependThumbprint(false);
             RequestWrapper<CryptoManagerRequestDTO> requestKernel = new RequestWrapper<>();
