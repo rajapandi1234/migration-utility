@@ -94,3 +94,7 @@ docker build -t re-encrypt-utility .
 ```
 docker run -p 8081:8081 -it --net=host re-encrypt-utility
 ```
+
+## ArchivalScript.sql 
+SQL scripts to move applications demographic, documents and appointment to CONSUMED
+tables based on createdDt or lastUpdatedDt whichever is latest.
