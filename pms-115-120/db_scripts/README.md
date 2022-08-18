@@ -2,7 +2,7 @@
 
 ## Overview
 
-This utility is used when Partner Management Services are moving from 1.1.5 to 1.2.0. This script will move data from 'mosip_authdevice' and 'mosip_regdevice' databases to 'mosip_pms' database.
+This script is used when Partner Management Services are moving from 1.1.5 to 1.2.0. This script will move data from 'mosip_authdevice' and 'mosip_regdevice' databases to 'mosip_pms' database.
 
 ## How To Run
 
