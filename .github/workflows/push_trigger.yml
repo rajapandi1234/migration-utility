@@ -89,9 +89,9 @@ jobs:
 
     runs-on: ubuntu-latest
     env:
-      NAMESPACE: mosipdev
+      NAMESPACE: ${{ secrets.dev_namespace_docker_hub }}
       SERVICE_NAME: pre-reg-113-115
-      SERVICE_LOCATION: migration-utility/pre-reg-113-115
+      SERVICE_LOCATION: pre-reg-113-115
 
     steps:
       - uses: actions/checkout@v2
