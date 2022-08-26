@@ -68,8 +68,8 @@ ENV loader_path_env=${loader_path}
 
 #RUN chmod +x configure_start.sh
 
-ADD target/pre-reg-113-115.jar-*.jar pre-reg-113-115.jar
+COPY ./target/ReEncryptUtility-*.jar ReEncryptUtility.jar
 
 #ENTRYPOINT [ "/configure_start.sh" ]
 
-CMD ["java","-jar", "-Dloader.path=${loader_path_env}", "-Dspring.cloud.config.label=${spring_config_label_env}","-Dspring.cloud.config.name=${spring_config_name_env}", "-Dspring.profiles.active=${active_profile_env}", "-Dspring.cloud.config.uri=${spring_config_url_env}", "/pre-reg-113-115"]
+CMD ["java","-jar", "-Dloader.path=${loader_path_env}", "-Dspring.cloud.config.label=${spring_config_label_env}","-Dspring.cloud.config.name=${spring_config_name_env}", "-Dspring.profiles.active=${active_profile_env}", "-Dspring.cloud.config.uri=${spring_config_url_env}", "/ReEncryptUtility.jar"]
