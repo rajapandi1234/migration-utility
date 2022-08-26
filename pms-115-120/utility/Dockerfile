@@ -68,8 +68,8 @@ ENV loader_path_env=${loader_path}
 
 #RUN chmod +x configure_start.sh
 
-ADD target/pms-115-120-*.jar  pms-115-120.jar
+ADD target/Utility-0.0.1-SNAPSHOT.jar   Utility-0.0.1-SNAPSHOT.jar
 
 #ENTRYPOINT [ "/configure_start.sh" ]
 
-CMD ["java","-jar", "-Dloader.path=${loader_path_env}", "-Dspring.cloud.config.label=${spring_config_label_env}","-Dspring.cloud.config.name=${spring_config_name_env}", "-Dspring.profiles.active=${active_profile_env}", "-Dspring.cloud.config.uri=${spring_config_url_env}", "/pms-115-120.jar"]
+CMD ["java","-jar", "-Dloader.path=${loader_path_env}", "-Dspring.cloud.config.label=${spring_config_label_env}","-Dspring.cloud.config.name=${spring_config_name_env}", "-Dspring.profiles.active=${active_profile_env}", "-Dspring.cloud.config.uri=${spring_config_url_env}", "/Utility-0.0.1-SNAPSHOT.jar"]
