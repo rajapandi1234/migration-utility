@@ -68,7 +68,7 @@ ENV loader_path_env=${loader_path}
 
 #RUN chmod +x configure_start.sh
 
-COPY ./target/ReEncryptUtility-*.jar ReEncryptUtility.jar
+ADD target/ReEncryptUtility-*.jar ReEncryptUtility.jar
 
 #ENTRYPOINT [ "/configure_start.sh" ]
 
