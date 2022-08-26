@@ -90,7 +90,7 @@ jobs:
     env:
       NAMESPACE: ${{ secrets.dev_namespace_docker_hub }}
       SERVICE_NAME: pms-115-120-service
-      SERVICE_LOCATION: pms-115-120/utility/pms-115-120-service
+      SERVICE_LOCATION: pms-115-120-service
 
     steps:
       - uses: actions/checkout@v2
