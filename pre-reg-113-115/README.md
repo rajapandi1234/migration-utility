@@ -23,22 +23,30 @@ For this scenario, the data will be decrypted with the upgraded version of MOSIP
 Scenario 1- Reads the database and object store data from the old key and re-encrypts with the new key and store it in new database and object store.<br />
 Scenario 2- Reads the database and object store data from the upgraded version of MOSIP and re-encrypts with the upgraded version of MOSIP and store it in same database and object store. <br />
 
+## PreRequisites
+1. Update [Properties](https://github.com/mosip/mosip-config/blob/develop1-v3/pre-reg-113-115-application-default.properties) from here.
+2. Run [Config Server](https://oss.sonatype.org/service/local/repositories/snapshots/content/io/mosip/kernel/kernel-config-server/1.2.0-SNAPSHOT/kernel-config-server-1.2.0-20201016.134941-57.jar)
+3. [Key-Manager Service](https://docs.mosip.io/1.2.0/modules/keymanager) should be running in qa3 and qa-upgrade.
+4. mosip_prereg db and minio should be there in source and destination environments.
 ## Setup steps:
 
 ### Linux (Docker) 
 
-1. Download the latest version of [migration-utility](https://github.com/kameshsr/migration-utility)
+1. Pull the latest docker from below Command.
 
 ```
-git clone https://github.com/kameshsr/migration-utility
+docker pull mosipdev/pre-reg-113-115:develop
 ```
-
-2. Two use Scenario 1 change isNewDatabase to true and Scenario 2 change isNewDatabase to false.
+2. Run docker image using below command.
+```
+docker run -p 8081:8081 -it --net=host re-encrypt-utility
+```
+## Properties files details
+1. Two use Scenario 1 change isNewDatabase to true and Scenario 2 change isNewDatabase to false.
 ```
 isNewDatabase=true
 ```
-
-3. For Both Scenarios, change below properties in the [application.properties.](https://github.com/kameshsr/re-encrypt-utility/blob/master/src/main/resources/application.properties)
+2. For Both Scenarios, change below properties in the [application.properties.](https://github.com/kameshsr/re-encrypt-utility/blob/master/src/main/resources/application.properties)
 
 ```
 datasource.primary.jdbcUrl=jdbc:postgresql://{jdbc url}:{port}/{primary database name}
@@ -68,7 +76,7 @@ encryptReferenceId={reference id for encryption}
 
 ```
 
-4. For Scenario 1 (Two Environments), change the below properties in the application.properties.
+3. For Scenario 1 (Two Environments), change the below properties in the application.properties.
 ```
 datasource.secondary.jdbcUrl=jdbc:postgresql://{jdbc url}:{port}/{secondary database name}
 datasource.secondary.username={username}
@@ -80,20 +88,6 @@ destinationObjectStore.s3.access-key={destination object store accesskey}
 destinationObjectStore.s3.secret-key={destination object store secretkey}
 ```
 
-5. Go to root directory of the project and run below command.
-```
-mvn clean install
-```
-
-6. Build docker image using below command.
-```
-docker build -t re-encrypt-utility .
-```
-
-7. Run docker image using below command.
-```
-docker run -p 8081:8081 -it --net=host re-encrypt-utility
-```
 
 ## ArchivalScript.sql 
 SQL scripts to move applications demographic, documents and appointment to CONSUMED
