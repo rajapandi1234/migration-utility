@@ -84,12 +84,12 @@ jobs:
         if: failure() # Pick up events even if the job fails or is canceled.
 
 
-  docker-pms-115-120-service:
+  docker-pms-115-120:
     needs: build
     runs-on: ubuntu-latest
     env:
       NAMESPACE: ${{ secrets.dev_namespace_docker_hub }}
-      SERVICE_NAME: pms-115-120-service
+      SERVICE_NAME: pms-115-120
       SERVICE_LOCATION: pms-115-120/utility
 
     steps:
@@ -112,7 +112,7 @@ jobs:
           xml-file: ./${{ env.SERVICE_LOCATION }}/pom.xml
           xpath: /*[local-name()="project"]/*[local-name()="version"]
           
-      - name: Unzip and extract the pms-115-120-service
+      - name: Unzip and extract the pms-115-120
         run: unzip -uj "release.zip" "${{ env.SERVICE_LOCATION }}/target/*" -d "./${{ env.SERVICE_LOCATION }}/target"
 
       - name: Get current date
