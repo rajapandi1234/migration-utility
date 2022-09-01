@@ -42,7 +42,7 @@ docker pull mosipdev/pre-reg-113-115:develop
 docker run -p 8081:8081 -it --net=host re-encrypt-utility
 ```
 ## Properties files details
-1. Two use Scenario 1 change isNewDatabase to true and Scenario 2 change isNewDatabase to false.
+1. For Scenario 1 change isNewDatabase to true and for Scenario 2 change isNewDatabase to false.
 ```
 isNewDatabase=true
 ```
