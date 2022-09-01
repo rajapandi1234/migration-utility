@@ -7,8 +7,8 @@ This utility will help you to migrate your data from the old key to the new key.
 
 ## Scenario 1 - Two different environments 
 
-Environment 1 :  1.1.3 has a set of keys generated and data is encrypted with this set of keys. <br />
-Environment 2 :  1.1.5 has a set of keys generated (different keys here, totally a new environment). <br />
+Source Environment :  1.1.3 has a set of keys generated and data is encrypted with this set of keys. <br />
+Destination Environment :  1.1.5 has a set of keys generated (different keys here, totally a new environment). <br />
 For this scenario, the data will be got decrypted with 1.1.3 environment keys and then re-encrypts with 1.1.5 environment. <br />
 
 ## Scenario 2 - Same environment 
@@ -26,8 +26,8 @@ Scenario 2- Reads the database and object store data from the upgraded version o
 ## PreRequisites
 1. Update [Properties](https://github.com/mosip/mosip-config/blob/develop1-v3/pre-reg-113-115-application-default.properties) from here.
 2. Run [Config Server](https://oss.sonatype.org/service/local/repositories/snapshots/content/io/mosip/kernel/kernel-config-server/1.2.0-SNAPSHOT/kernel-config-server-1.2.0-20201016.134941-57.jar)
-3. [Key-Manager Service](https://docs.mosip.io/1.2.0/modules/keymanager) should be running in qa3 and qa-upgrade.
-4. mosip_prereg db and minio should be there in source and destination environments.
+3. [Key-Manager Service](https://docs.mosip.io/1.2.0/modules/keymanager) should be running.
+4. mosip_prereg database and minio should be there in source and destination environments.
 ## Setup steps:
 
 ### Linux (Docker) 
@@ -39,14 +39,14 @@ docker pull mosipdev/pre-reg-113-115:develop
 ```
 2. Run docker image using below command.
 ```
-docker run -p 8081:8081 -it --net=host re-encrypt-utility
+docker run re-encrypt-utility
 ```
 ## Properties files details
-1. For Scenario 1 change isNewDatabase to true and for Scenario 2 change isNewDatabase to false.
+1. For Scenario 1 change isNewDatabase property to true and for Scenario 2 change isNewDatabase property to false.
 ```
 isNewDatabase=true
 ```
-2. For Both Scenarios, change below properties in the [application.properties.](https://github.com/kameshsr/re-encrypt-utility/blob/master/src/main/resources/application.properties)
+2. change below properties in the [application.properties.](https://github.com/kameshsr/re-encrypt-utility/blob/master/src/main/resources/application.properties)
 
 ```
 datasource.primary.jdbcUrl=jdbc:postgresql://{jdbc url}:{port}/{primary database name}
@@ -76,7 +76,7 @@ encryptReferenceId={reference id for encryption}
 
 ```
 
-3. For Scenario 1 (Two Environments), change the below properties in the application.properties.
+3. For Scenario 1 (Source and destination Environments), change the below properties in the application.properties.
 ```
 datasource.secondary.jdbcUrl=jdbc:postgresql://{jdbc url}:{port}/{secondary database name}
 datasource.secondary.username={username}
