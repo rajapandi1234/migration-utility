@@ -1,44 +1,47 @@
-# Re-Encrypt-Utility
+# Migration Utility
 
 ## Overview
-Utilities for data migration - for encryption key changes <br />
-In 1.1.5, version of MOSIP the encryption key was changed to a new key. <br />
-This utility will help you to migrate your data from the old key to the new key.
+In `1.1.3` version of MOSIP, the encryption key was `REGISTRATION` which is now changed to a new key `PRE_REGISTRATION` in `1.1.5`. <br />
+This utility helps in migrating data from the `1.1.3` to the `1.1.5` version of MOSIP.
 
-## Scenario 1 - Two different environments 
+## Scenario 1- Two different environments 
 
-Environment 1 :  1.1.3 has a set of keys generated and data is encrypted with this set of keys. <br />
-Environment 2 :  1.1.5 has a set of keys generated (different keys here, totally a new environment). <br />
-For this scenario, the data will be got decrypted with 1.1.3 environment keys and then re-encrypts with 1.1.5 environment. <br />
+Source Environment :  `1.1.3` has a set of keys generated and data is encrypted with this set of keys. <br />
+Destination Environment :  `1.1.5` has a set of keys generated (different keys here, totally a new environment). <br />
+In this scenario, the data gets decrypted with `1.1.3` environment keys and then encrypts with `1.1.5` environment keys. <br />
 
-## Scenario 2 - Same environment 
+## Scenario 2- Same environment 
 
-Environment : previously it was running 1.1.3 version of MOSIP. <br />
-Generated a set of keys and then encrypted data with this set of keys. <br />
-Now in the same environment 1.1.5 version of MOSIP has got upgraded but no new keys will get generated here. <br />
-It's just application upgrade. <br />
-For this scenario, the data will be decrypted with the upgraded version of MOSIP and re-encrypted with upgraded version of MOSIP. <br />
+In this scenario `1.1.5` version of MOSIP is upgraded but no new keys gets generated here and it is just an application upgrade. <br />
+Hence, the data will be decrypted with the upgraded version of MOSIP and encrypted with the upgraded version of MOSIP. <br />
 
-## Functionality 
-Scenario 1- Reads the database and object store data from the old key and re-encrypts with the new key and store it in new database and object store.<br />
-Scenario 2- Reads the database and object store data from the upgraded version of MOSIP and re-encrypts with the upgraded version of MOSIP and store it in same database and object store. <br />
+## Prerequisites
+1. Update `Properties` from [here](https://github.com/mosip/mosip-config/blob/develop1-v3/pre-reg-113-115-application-default.properties).
+2. Run [Config Server](https://oss.sonatype.org/service/local/repositories/snapshots/content/io/mosip/kernel/kernel-config-server/1.2.0-SNAPSHOT/kernel-config-server-1.2.0-20201016.134941-57.jar)
+3. [Key-Manager Service](https://docs.mosip.io/1.2.0/modules/keymanager) should be running.
+4. `mosip_prereg` database and `minio` should be there in source and destination environments.
 
-## Setup steps:
+## Steps to run the utility
 
 ### Linux (Docker) 
 
-1. Download the latest version of [migration-utility](https://github.com/kameshsr/migration-utility)
+1. Pull the latest docker from the command below.
 
 ```
-git clone https://github.com/kameshsr/migration-utility
+docker pull mosipdev/pre-reg-113-115:develop
+```
+2. Run docker image using the below command.
+```
+docker run re-encrypt-utility
 ```
 
-2. Two use Scenario 1 change isNewDatabase to true and Scenario 2 change isNewDatabase to false.
+#### Properties files details
+
+1. For Scenario 1, set `isNewDatabase` property to "true" and for Scenario 2, set `isNewDatabase` property to "false".
 ```
 isNewDatabase=true
 ```
-
-3. For Both Scenarios, change below properties in the [application.properties.](https://github.com/kameshsr/re-encrypt-utility/blob/master/src/main/resources/application.properties)
+2. Change the below properties in [application.properties](https://github.com/kameshsr/re-encrypt-utility/blob/master/src/main/resources/application.properties).
 
 ```
 datasource.primary.jdbcUrl=jdbc:postgresql://{jdbc url}:{port}/{primary database name}
@@ -68,7 +71,7 @@ encryptReferenceId={reference id for encryption}
 
 ```
 
-4. For Scenario 1 (Two Environments), change the below properties in the application.properties.
+3. For Scenario 1 (Source and destination Environments), change the below properties in the `application.properties`.
 ```
 datasource.secondary.jdbcUrl=jdbc:postgresql://{jdbc url}:{port}/{secondary database name}
 datasource.secondary.username={username}
@@ -80,21 +83,8 @@ destinationObjectStore.s3.access-key={destination object store accesskey}
 destinationObjectStore.s3.secret-key={destination object store secretkey}
 ```
 
-5. Go to root directory of the project and run below command.
-```
-mvn clean install
-```
 
-6. Build docker image using below command.
-```
-docker build -t re-encrypt-utility .
-```
+### ArchivalScript.sql
 
-7. Run docker image using below command.
-```
-docker run -p 8081:8081 -it --net=host re-encrypt-utility
-```
-
-## ArchivalScript.sql 
-SQL scripts to move applications demographic, documents and appointment to CONSUMED
-tables based on createdDt or lastUpdatedDt whichever is latest.
+SQL scripts to move `applicant_demographic`, `applicant_document` and `reg_appointment` table to respective `CONSUMED`
+tables based on `createdDt` or `lastUpdatedDt` whichever is latest.
