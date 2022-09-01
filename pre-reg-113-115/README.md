@@ -1,24 +1,20 @@
 # Migration-Utility
 
 ## Overview
-In 1.1.5, version of MOSIP the encryption key was `REGISTRATION` that is changed to a new key `PRE_REGISTRATION`. <br />
+In `1.1.5`, version of MOSIP the encryption key was `REGISTRATION` that is changed to a new key `PRE_REGISTRATION`. <br />
 This utility will help you to migrate your data from the old key to the new key.
 
 ## Scenario 1 - Two different environments 
 
-Source Environment :  1.1.3 has a set of keys generated and data is encrypted with this set of keys. <br />
-Destination Environment :  1.1.5 has a set of keys generated (different keys here, totally a new environment). <br />
-For this scenario, the data will be decrypted with 1.1.3 environment keys and then encrypts with 1.1.5 environment. <br />
+Source Environment :  `1.1.3` has a set of keys generated and data is encrypted with this set of keys. <br />
+Destination Environment :  `1.1.5` has a set of keys generated (different keys here, totally a new environment). <br />
+For this scenario, the data will be decrypted with `1.1.3` environment keys and then encrypts with `1.1.5` environment. <br />
 
 ## Scenario 2 - Same environment 
 
 In this scenario `1.1.5` version of MOSIP has got upgraded but no new keys will get generated here. <br />
 It's just application upgrade. <br />
 So, the data will be decrypted with the upgraded version of MOSIP and encrypted with upgraded version of MOSIP. <br />
-
-## Functionality of Migration-Utility for both scenario
-Scenario 1- Reads the database and object store data from the old key and re-encrypts with the new key and store it in new database and object store.<br />
-Scenario 2- Reads the database and object store data from the upgraded version of MOSIP and re-encrypts with the upgraded version of MOSIP and store it in same database and object store. <br />
 
 ## Pre-requisites
 1. Update [Properties](https://github.com/mosip/mosip-config/blob/develop1-v3/pre-reg-113-115-application-default.properties) from here.
