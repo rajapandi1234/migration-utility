@@ -1,13 +1,13 @@
 # Migration Utility
 
 ## Overview
-In `1.1.5` version of MOSIP, the encryption key was `REGISTRATION` which is now changed to a new key `PRE_REGISTRATION`. <br />
-This utility helps in migrating data from the old to the new key.
+In `1.1.3` version of MOSIP, the encryption key was `REGISTRATION` which is now changed to a new key `PRE_REGISTRATION` in `1.1.5`. <br />
+This utility helps in migrating data from the `1.1.3` to the `1.1.5`.
 
 ## Scenario 1- Two different environments 
 
 Source Environment :  `1.1.3` has a set of keys generated and data is encrypted with this set of keys. <br />
-Destination Environment :  `1.1.5` has a set of keys generated (different keys here, totally a new environment). <br /
+Destination Environment :  `1.1.5` has a set of keys generated (different keys here, totally a new environment). <br />
 In this scenario, the data gets decrypted with `1.1.3` environment keys and then encrypts with `1.1.5` environment keys. <br />
 
 ## Scenario 2- Same environment 
@@ -37,7 +37,7 @@ docker run re-encrypt-utility
 
 #### Properties files details
 
-1. For Scenario 1, change `isNewDatabase` property to "true" and for Scenario 2, change `isNewDatabase` property to "false".
+1. For Scenario 1, set `isNewDatabase` property to "true" and for Scenario 2, set `isNewDatabase` property to "false".
 ```
 isNewDatabase=true
 ```
