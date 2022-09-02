@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
@@ -16,6 +17,7 @@ import io.mosip.pms.ida.websub.WebSubPublisher;
 @SpringBootApplication
 @Import(value = {WebSubPublisher.class,RestUtil.class})
 @ComponentScan(basePackages = {"io.mosip.pms.*"})
+@EnableAutoConfiguration
 public class Application implements CommandLineRunner {
 
 	@Autowired
