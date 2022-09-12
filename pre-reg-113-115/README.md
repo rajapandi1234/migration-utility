@@ -94,5 +94,3 @@ tables based on `createdDt` or `lastUpdatedDt` whichever is latest.
 1. Update `startDate` and `endDate` in [ArchivalScript.sql](../db_scripts/ArchivalScript.sql).
 2. Log in to psql.
 3. Execute this command `\i ArchivalScript.sql`.
-=======
-
