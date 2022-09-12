@@ -98,3 +98,8 @@ docker run -p 8081:8081 -it --net=host re-encrypt-utility
 ## ArchivalScript.sql 
 SQL scripts to move applications demographic, documents and appointment to CONSUMED
 tables based on createdDt or lastUpdatedDt whichever is latest.
+
+# steps to run
+1. Update `startDate` and `endDate` in [ArchivalScript.sql](../db_scripts/ArchivalScript.sql).
+2. Log in to psql.
+3. Execute this command `\i ArchivalScript.sql`.
