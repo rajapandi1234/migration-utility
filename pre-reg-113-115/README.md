@@ -1,3 +1,11 @@
+# Move record to consumed table
+SQL scripts to move `applicant_demographic`, `applicant_document` and `reg_appointment` table to respective `CONSUMED`
+tables based on `createdDt` or `lastUpdatedDt` whichever is latest.
+
+# steps to run
+1. Update `startDate` and `endDate` in [ArchivalScript.sql](../db_scripts/ArchivalScript.sql).
+2. Execute this command `psql -h host -U username -d database -f ArchivalScript.sql`.
+
 # Migration Utility
 
 ## Overview
@@ -82,9 +90,3 @@ destinationObjectStore.s3.url={destination object store url}
 destinationObjectStore.s3.access-key={destination object store accesskey}
 destinationObjectStore.s3.secret-key={destination object store secretkey}
 ```
-
-
-### ArchivalScript.sql
-
-SQL scripts to move `applicant_demographic`, `applicant_document` and `reg_appointment` table to respective `CONSUMED`
-tables based on `createdDt` or `lastUpdatedDt` whichever is latest.
