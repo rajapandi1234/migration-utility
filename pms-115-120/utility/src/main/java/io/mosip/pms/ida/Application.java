@@ -16,7 +16,7 @@ import io.mosip.pms.ida.websub.WebSubPublisher;
 
 @SpringBootApplication
 @Import(value = {WebSubPublisher.class,RestUtil.class})
-@ComponentScan(basePackages = {"io.mosip.pms.*"})
+@ComponentScan(basePackages = {"io.mosip.pms.*", "io.mosip.kernel.auth.defaultadapter"})
 @EnableAutoConfiguration
 public class Application implements CommandLineRunner {
 

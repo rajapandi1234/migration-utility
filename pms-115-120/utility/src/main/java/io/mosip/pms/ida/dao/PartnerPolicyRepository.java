@@ -43,4 +43,10 @@ public interface PartnerPolicyRepository extends JpaRepository<PartnerPolicy, St
 
 	@Query(value = "select * from partner_policy pp where pp.part_id=?1 AND pp.policy_id=?2 AND pp.label=?3",nativeQuery = true)
 	public PartnerPolicy findByPartnerIdPolicyIdAndLabel(String partnerId, String policyId, String label);
+	
+	@Query(value = "select * from partner_policy pp where pp.cr_dtimes>?1 and pp.cr_dtimes<?2  and ( pp.is_deleted = false or pp.is_deleted is null)", nativeQuery = true)
+	public List<PartnerPolicy> findByCreatedDtimeGreaterThanAndIsDeletedFalseOrIsDeletedIsNull(LocalDateTime crDtimes, LocalDateTime presentDtimes);
+	
+	@Query(value = "select * from partner_policy pp where pp.upd_dtimes>=?1 and pp.upd_dtimes<?2 and ( pp.is_deleted = false or pp.is_deleted is null)", nativeQuery = true)
+	public List<PartnerPolicy> findByUpdDtimeGreaterThanAndIsDeletedFalseOrIsDeletedIsNull(LocalDateTime crDtimes, LocalDateTime presentDtimes);
 }

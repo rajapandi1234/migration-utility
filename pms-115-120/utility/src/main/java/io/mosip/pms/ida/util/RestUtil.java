@@ -220,17 +220,16 @@ public class RestUtil {
 		UriComponentsBuilder builder = null;
 		if (apiUrl != null) {
 			builder = UriComponentsBuilder.fromUriString(apiUrl);
-			URI urlWithPath = builder.build(pathsegments);
 			RestTemplate restTemplate;
+			restTemplate = getRestTemplate();
+			URI urlWithPath = builder.build(pathsegments);
 			try {
-				restTemplate = getRestTemplate();
-				result = (T) restTemplate
+				return (T) restTemplate
 						.exchange(urlWithPath, HttpMethod.GET, setRequestHeader(null, null), responseType).getBody();
 			} catch (Exception e) {
 				logger.error("Error occurred while calling {}", urlWithPath, e);
 				throw e;
 			}
-
 		}
 		return result;
 	}

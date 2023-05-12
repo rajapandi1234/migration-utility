@@ -3,12 +3,6 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<parent>
-		<groupId>org.springframework.boot</groupId>
-		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.6.4</version>
-		<relativePath /> <!-- lookup parent from repository -->
-	</parent>
 	<groupId>io.mosip.pms</groupId>
 	<artifactId>Utility</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
@@ -16,11 +10,18 @@
 	<description>Utility</description>
 	<properties>
 		<java.version>11</java.version>
-		<kernel-dataaccess-hibernate.version>1.2.0.1-SNAPSHOT</kernel-dataaccess-hibernate.version>
-		<kernel-websubclient-api.version>1.2.0.1-SNAPSHOT</kernel-websubclient-api.version>
-		<kernel.version>1.2.0.1-SNAPSHOT</kernel.version>
+		<kernel-dataaccess-hibernate.version>1.2.0.1-B1</kernel-dataaccess-hibernate.version>
+		<kernel-websubclient-api.version>1.2.0.1-B1</kernel-websubclient-api.version>
+		<kernel.version>1.2.0.1-B1</kernel.version>
+		<maven.compiler.source>1.8</maven.compiler.source>
+ 		<maven.compiler.target>1.8</maven.compiler.target>
 	</properties>
 	<dependencies>
+		<dependency>
+		    <groupId>io.mosip.kernel</groupId>
+		    <artifactId>kernel-core</artifactId>
+		    <version>1.2.0.1-B1</version>
+		</dependency>
 		<dependency>
 			<groupId>io.mosip.kernel</groupId>
 			<artifactId>kernel-websubclient-api</artifactId>
@@ -50,11 +51,13 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
+			<version>2.0.2.RELEASE</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
+			<version>2.0.2.RELEASE</version>
 			<exclusions>
 				<exclusion>
 					<groupId>org.junit.vintage</groupId>
@@ -63,19 +66,9 @@
 			</exclusions>
 		</dependency>
 		<dependency>
-			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-starter-bootstrap</artifactId>
-			<version>3.1.2</version>
-		</dependency>
-		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 			<version>1.18.22</version>
-		</dependency>
-		<dependency>
-			<groupId>io.mosip.kernel</groupId>
-			<artifactId>kernel-core</artifactId>
-			<version>1.2.0.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>javax.validation</groupId>

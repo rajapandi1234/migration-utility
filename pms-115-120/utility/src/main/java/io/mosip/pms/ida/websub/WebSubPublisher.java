@@ -20,7 +20,7 @@ import io.mosip.pms.ida.util.UtilityLogger;
 
 public class WebSubPublisher {
 
-	private static final Logger logger = UtilityLogger.getLogger(WebSubPublisher.class);
+private static final Logger logger =  UtilityLogger.getLogger(WebSubPublisher.class);
 	
 	@Value("${websub.publish.url}")
 	private String webSubHubPublishUrl;
