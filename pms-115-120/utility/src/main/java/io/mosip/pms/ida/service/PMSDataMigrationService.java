@@ -49,8 +49,7 @@ public class PMSDataMigrationService {
 	
     public static final String CERT_CHAIN_DATA_SHARE_URL = "certChainDatashareUrl";
 	
-	public static final String PARTNER_DOMAIN = "partnerDomain";
-	
+    public static final String PARTNER_DOMAIN = "partnerDomain";
 
 	private static final Logger LOGGER = UtilityLogger.getLogger(PMSDataMigrationService.class);
 
@@ -85,7 +84,6 @@ public class PMSDataMigrationService {
 	private WebSubPublisher webSubPublisher;
 
 	public void initialize() {
-    	getLastSyncTimeStamp();
     	LocalDateTime lastSync = getLastSyncTimeStamp();
     	LocalDateTime latestSync = LocalDateTime.now();
 		LOGGER.info("Started publishing the data");
@@ -97,9 +95,9 @@ public class PMSDataMigrationService {
 					publishUpdateApiKey(lastSync,latestSync);
 				}
 		} catch (Exception e) {
-			LOGGER.error("Error occurred while publishing the data");
+			LOGGER.error("Error occurred while publishing the data - " + e);
 		}
-		publishLatestSyncTimeStamp(latestSync);
+		saveLatestSyncTimeStamp(latestSync);
 	}
 
 	
@@ -262,13 +260,14 @@ public class PMSDataMigrationService {
 
 	public LocalDateTime getLastSyncTimeStamp() {
 		LastSync lastSyncDto = lastSyncRepository.findLastSync();
-		return (lastSyncDto == null)?null:lastSyncDto.getLastSync();
+		return (lastSyncDto == null) ? null : lastSyncDto.getLastSync();
 	}
 	
-	public void publishLatestSyncTimeStamp(LocalDateTime LatestSync) {
+	public void saveLatestSyncTimeStamp(LocalDateTime LatestSync) {
 		LastSync latestSync = new LastSync();
 		latestSync.setLastSync(LatestSync);
 		latestSync.setCreatedBy(getUser());
+		latestSync.setCreatedDateTime(LatestSync);
 		lastSyncRepository.save(latestSync);
 	}
 }
