@@ -114,7 +114,7 @@ public class PMSDataMigrationService {
 			notify(certUtil.getDataShareurl(signedPartnerCert), partnerDomain);
 			LOGGER.info("Published the data for label :: " + partner.getId() );
 		}
-		
+		partnerDomainMap.clear();
 	}
 	
 	public void publishUpdateApiKey(LocalDateTime lastSync, LocalDateTime onGoingSync) {
