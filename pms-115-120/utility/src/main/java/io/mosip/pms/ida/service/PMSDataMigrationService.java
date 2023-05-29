@@ -94,10 +94,10 @@ public class PMSDataMigrationService {
 				if(lastSync!=null) {
 					publishUpdateApiKey(lastSync,latestSync);
 				}
+				saveLatestSyncTimeStamp(latestSync);
 		} catch (Exception e) {
 			LOGGER.error("Error occurred while publishing the data - " + e);
 		}
-		saveLatestSyncTimeStamp(latestSync);
 	}
 
 	
@@ -264,6 +264,10 @@ public class PMSDataMigrationService {
 	}
 	
 	public void saveLatestSyncTimeStamp(LocalDateTime LatestSync) {
+		
+		if(lastSyncRepository.count()>10) {
+			lastSyncRepository.deleteOldEntry();
+		}
 		LastSync latestSync = new LastSync();
 		latestSync.setLastSync(LatestSync);
 		latestSync.setCreatedBy(getUser());
