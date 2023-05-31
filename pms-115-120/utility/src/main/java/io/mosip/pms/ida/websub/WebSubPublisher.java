@@ -20,7 +20,7 @@ import io.mosip.pms.ida.util.UtilityLogger;
 
 public class WebSubPublisher {
 
-	private static final Logger logger = UtilityLogger.getLogger(WebSubPublisher.class);
+	private static final Logger logger =  UtilityLogger.getLogger(WebSubPublisher.class);
 	
 	@Value("${websub.publish.url}")
 	private String webSubHubPublishUrl;
@@ -37,7 +37,7 @@ public class WebSubPublisher {
 			logger.info(this.getClass().getSimpleName(), "sendEventToIDA", "Trying registering topic: " + model.getTopic());
 			pb.registerTopic(model.getTopic(), webSubHubPublishUrl);
 		} catch (Exception e) {
-			//Exception will be there if topic already registered. Ignore that
+			//Exception will be there if topic already registered. Please Ignore that
 			logger.warn(this.getClass().getSimpleName(), "sendEventToIDA", "Error in registering topic: " + model.getTopic() + " : " + e.getMessage() );
 		}
 		logger.info(this.getClass().getSimpleName(), "sendEventToIDA", "Publising event to topic: " + model.getTopic());

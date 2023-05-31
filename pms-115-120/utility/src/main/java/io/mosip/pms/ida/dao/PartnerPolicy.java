@@ -17,7 +17,7 @@ import javax.persistence.Table;
  * 
  */
 @Entity
-@Table(name="partner_policy")
+@Table(schema = "pms", name="partner_policy")
 @NamedQuery(name="PartnerPolicy.findAll", query="SELECT p FROM PartnerPolicy p")
 public class PartnerPolicy implements Serializable {
 	private static final long serialVersionUID = 1L;
@@ -61,8 +61,6 @@ public class PartnerPolicy implements Serializable {
 	@JoinColumn(name="part_id")
 	private Partner partner;
 	
-	@Column(name = "label")
-	private String label;
 
 	public PartnerPolicy() {
 	}
@@ -162,13 +160,6 @@ public class PartnerPolicy implements Serializable {
 	public void setPartner(Partner partner) {
 		this.partner = partner;
 	}
-	
-	public void setLabel(String label) {
-		this.label = label;
-	}
-	
-	public String getLabel() {
-		return this.label;
-	}
+
 
 }

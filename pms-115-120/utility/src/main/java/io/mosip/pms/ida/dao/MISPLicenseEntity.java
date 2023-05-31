@@ -24,7 +24,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "misp_license")
+@Table(schema = "pms", name = "misp_license")
 public class MISPLicenseEntity implements Serializable {
 	
 	private static final long serialVersionUID = -8541947597557590399L;	
@@ -33,7 +33,6 @@ public class MISPLicenseEntity implements Serializable {
 	@Column(name = "misp_id")	
 	private String mispId;	
 	
-	@NotNull
     @Column(name = "license_key")
 	private String licenseKey;
 	

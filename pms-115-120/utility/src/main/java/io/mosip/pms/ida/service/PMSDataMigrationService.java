@@ -1,9 +1,12 @@
 package io.mosip.pms.ida.service;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.json.simple.JSONObject;
@@ -11,14 +14,18 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.mosip.kernel.core.authmanager.authadapter.model.AuthUserDetails;
 import io.mosip.kernel.core.logger.spi.Logger;
 import io.mosip.pms.ida.constant.EventType;
 import io.mosip.pms.ida.dao.AuthPolicy;
 import io.mosip.pms.ida.dao.AuthPolicyRepository;
+import io.mosip.pms.ida.dao.LastSync;
+import io.mosip.pms.ida.dao.LastSyncRepository;
 import io.mosip.pms.ida.dao.MISPLicenseEntity;
 import io.mosip.pms.ida.dao.MispLicenseRepository;
 import io.mosip.pms.ida.dao.Partner;
@@ -31,6 +38,7 @@ import io.mosip.pms.ida.dto.PartnerCertDownloadResponeDto;
 import io.mosip.pms.ida.dto.PartnerDataPublishDto;
 import io.mosip.pms.ida.dto.PolicyPublishDto;
 import io.mosip.pms.ida.dto.Type;
+import io.mosip.pms.ida.util.CertUtil;
 import io.mosip.pms.ida.util.MapperUtils;
 import io.mosip.pms.ida.util.RestUtil;
 import io.mosip.pms.ida.util.UtilityLogger;
@@ -38,11 +46,12 @@ import io.mosip.pms.ida.websub.WebSubPublisher;
 
 @Service
 public class PMSDataMigrationService {
+	
+    public static final String CERT_CHAIN_DATA_SHARE_URL = "certChainDatashareUrl";
+	
+    public static final String PARTNER_DOMAIN = "partnerDomain";
 
 	private static final Logger LOGGER = UtilityLogger.getLogger(PMSDataMigrationService.class);
-
-	@Autowired
-	RestUtil restUtil;
 
 	@Autowired
 	PartnerPolicyRepository partnerPolicyRepository;
@@ -55,31 +64,78 @@ public class PMSDataMigrationService {
 
 	@Autowired
 	MispLicenseRepository mispLicenseRepository;
+	
+	@Autowired
+	LastSyncRepository lastSyncRepository;
 
 	@Autowired
 	private Environment environment;
 
 	@Autowired
 	private ObjectMapper mapper;
+	
+	@Autowired
+	private CertUtil certUtil;
+	
+	@Autowired
+	RestUtil restUtil;
 
 	@Autowired
 	private WebSubPublisher webSubPublisher;
 
 	public void initialize() {
-		LOGGER.error("Started publishing the data");
+    	LocalDateTime lastSync = getLastSyncTimeStamp();
+    	LocalDateTime latestSync = LocalDateTime.now();
+		LOGGER.info("Started publishing the data");
 		try {
-			publishAPIKeyData();
-			publishMISPLicenseData();
+				publishPartnerUpdated(lastSync,latestSync);
+				publishAPIKeyData(lastSync,latestSync);
+				publishMISPLicenseData(lastSync,latestSync);
+				if(lastSync!=null) {
+					publishUpdateApiKey(lastSync,latestSync);
+				}
+				saveLatestSyncTimeStamp(latestSync);
 		} catch (Exception e) {
-			LOGGER.error("Error occurred while publishing the data");
+			LOGGER.error("Error occurred while publishing the data - " + e);
 		}
 	}
 
-	public void publishAPIKeyData() throws Exception {
-		List<PartnerPolicy> allApprovedPolicies = partnerPolicyRepository.findAll();
+	
+	public void publishPartnerUpdated(LocalDateTime lastSync, LocalDateTime onGoingSync) throws Exception {
+		List<Partner> partners = (lastSync == null) ? partnerRepository.findAll() : 
+			partnerRepository.findByCreatedDtimeOrUpdDtimeGreaterThanAndIsDeletedFalseOrIsDeletedIsNull(lastSync,onGoingSync);
+		Map<String,String> partnerDomainMap = certUtil.getPartnerDomainMap();
+		for(Partner partner : partners) {
+			String signedPartnerCert = certUtil.getCertificate("PMS",partner.getId());
+			String partnerDomain = partnerDomainMap.containsKey(partner.getPartnerTypeCode())?
+					partnerDomainMap.get(partner.getPartnerTypeCode()):partnerDomainMap.get("Auth_Partner");
+			LOGGER.info("Publishing the data for Partner :: " + partner.getId());
+			notify(MapperUtils.mapDataToPublishDto(partner, signedPartnerCert), EventType.PARTNER_UPDATED);
+			notify(certUtil.getDataShareurl(signedPartnerCert), partnerDomain);
+			LOGGER.info("Published the data for label :: " + partner.getId() );
+		}
+		partnerDomainMap.clear();
+	}
+	
+	public void publishUpdateApiKey(LocalDateTime lastSync, LocalDateTime onGoingSync) {
+		List<PartnerPolicy> allApprovedPolicies = partnerPolicyRepository.findByUpdDtimeGreaterThanAndIsDeletedFalseOrIsDeletedIsNull(lastSync, onGoingSync);
 		for (PartnerPolicy partnerPolicy : allApprovedPolicies) {
-			LOGGER.info("Publishing the data for label :: " + partnerPolicy.getLabel() + " partner :: "
-					+ partnerPolicy.getPartner().getId() + "policy :: " + partnerPolicy.getPolicyId());
+			LOGGER.info("Publishing the data for partner :: "
+					+ partnerPolicy.getPartner().getId() + "  policy :: " + partnerPolicy.getPolicyId());
+			notify(null, null, MapperUtils.mapKeyDataToPublishDto(partnerPolicy), EventType.APIKEY_UPDATED);
+			LOGGER.info("Published the data for partner :: "
+					+ partnerPolicy.getPartner().getId() + "  policy :: " + partnerPolicy.getPolicyId());
+		}
+	}
+	
+	
+	public void publishAPIKeyData(LocalDateTime lastSync, LocalDateTime onGoingSync) throws Exception {
+		List<PartnerPolicy> allApprovedPolicies = (lastSync == null)?partnerPolicyRepository.findAll():
+		             partnerPolicyRepository.findByCreatedDtimeGreaterThanAndIsDeletedFalseOrIsDeletedIsNull(lastSync, onGoingSync);
+		
+		for (PartnerPolicy partnerPolicy : allApprovedPolicies) {
+			LOGGER.info("Publishing the data for partner :: "
+					+ partnerPolicy.getPartner().getId() + "  policy :: " + partnerPolicy.getPolicyId());
 			Optional<Partner> partnerFromDb = partnerRepository.findById(partnerPolicy.getPartner().getId());
 			Optional<AuthPolicy> validPolicy = authPolicyRepository.findById(partnerPolicy.getPolicyId());
 			notify(MapperUtils.mapDataToPublishDto(partnerFromDb.get(),
@@ -87,14 +143,15 @@ public class PMSDataMigrationService {
 					MapperUtils.mapPolicyToPublishDto(validPolicy.get(),
 							getPolicyObject(validPolicy.get().getPolicyFileId())),
 					MapperUtils.mapKeyDataToPublishDto(partnerPolicy), EventType.APIKEY_APPROVED);
-			LOGGER.info("Published the data for label :: " + partnerPolicy.getLabel() + " partner :: "
-					+ partnerPolicy.getPartner().getId() + "policy :: " + partnerPolicy.getPolicyId());
+			LOGGER.info("Published the data for partner :: "
+					+ partnerPolicy.getPartner().getId() + "  policy :: " + partnerPolicy.getPolicyId());
 
 		}
 	}
 
-	public void publishMISPLicenseData() {
-		List<MISPLicenseEntity> mispLicenseFromDb = mispLicenseRepository.findAll();
+	public void publishMISPLicenseData(LocalDateTime lastSync, LocalDateTime onGoingSync) {
+		List<MISPLicenseEntity> mispLicenseFromDb = (lastSync==null) ? mispLicenseRepository.findAll() : 
+			mispLicenseRepository.findByCreatedDtimeOrUpdDtimeGreaterThanAndIsDeletedFalseOrIsDeletedIsNull(lastSync, onGoingSync);
 		for (MISPLicenseEntity mispLicenseEntity : mispLicenseFromDb) {
 			LOGGER.info("Publishing the data for MISPID :: " + mispLicenseEntity.getMispId());
 			notify(MapperUtils.mapDataToPublishDto(mispLicenseEntity), EventType.MISP_LICENSE_GENERATED);
@@ -110,12 +167,12 @@ public class PMSDataMigrationService {
 		data.put("mispLicenseData", dataToPublish);
 		webSubPublisher.notify(eventType, data, type);
 	}
-
+	
 	private String getPartnerCertificate(String certificateAlias) throws Exception {
 		Map<String, String> pathsegments = new HashMap<>();
 		pathsegments.put("partnerCertId", certificateAlias);
 		Map<String, Object> getApiResponse = restUtil
-				.getApi(environment.getProperty("pmp.partner.certificaticate.get.rest.uri"), pathsegments, Map.class);
+				.getApi(environment.getProperty("pmp.partner.certificate.get.rest.uri"), pathsegments, Map.class);
 		PartnerCertDownloadResponeDto responseObject = null;
 		try {
 			responseObject = mapper.readValue(mapper.writeValueAsString(getApiResponse.get("response")),
@@ -154,6 +211,30 @@ public class PMSDataMigrationService {
 		type.setNamespace("PMSDataMigrationService");
 		webSubPublisher.notify(eventType, data, type);
 	}
+	
+	private void notify(PartnerDataPublishDto mapDataToPublishDto, EventType partnerUpdated) {
+		Type type = new Type();
+		type.setName("PartnerServiceImpl");
+		type.setNamespace("io.mosip.pmp.partner.service.impl.PartnerServiceImpl");
+		Map<String, Object> data = new HashMap<>();
+		data.put("partnerData", mapDataToPublishDto);
+		webSubPublisher.notify(partnerUpdated, data, type);		
+	}
+	
+	/**
+	 * 
+	 * @param certData
+	 * @param partnerDomain
+	 */
+	private void notify(String certData, String partnerDomain) {
+		Type type = new Type();
+		type.setName("PartnerServiceImpl");
+		type.setNamespace("io.mosip.pmp.partner.service.impl.PartnerServiceImpl");
+		Map<String, Object> data = new HashMap<>();
+		data.put(CERT_CHAIN_DATA_SHARE_URL, certData);
+		data.put(PARTNER_DOMAIN, partnerDomain);
+		webSubPublisher.notify(EventType.CA_CERTIFICATE_UPLOADED, data, type);
+	}
 
 	private JSONObject getPolicyObject(String policy) {
 		JSONParser parser = new JSONParser();
@@ -163,5 +244,34 @@ public class PMSDataMigrationService {
 			LOGGER.error("Error occurred while parsing the policy file", e.getMessage());
 		}
 		return null;
+	}
+	
+	public String getUser() {
+		if (Objects.nonNull(SecurityContextHolder.getContext())
+				&& Objects.nonNull(SecurityContextHolder.getContext().getAuthentication())
+				&& Objects.nonNull(SecurityContextHolder.getContext().getAuthentication().getPrincipal())
+				&& SecurityContextHolder.getContext().getAuthentication().getPrincipal() instanceof AuthUserDetails) {
+			return ((AuthUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal())
+					.getUserId();
+		} else {
+			return "system";
+		}
+	}
+
+	public LocalDateTime getLastSyncTimeStamp() {
+		LastSync lastSyncDto = lastSyncRepository.findLastSync();
+		return (lastSyncDto == null) ? null : lastSyncDto.getLastSync();
+	}
+	
+	public void saveLatestSyncTimeStamp(LocalDateTime LatestSync) {
+		
+		if(lastSyncRepository.count()>10) {
+			lastSyncRepository.deleteOldEntry();
+		}
+		LastSync latestSync = new LastSync();
+		latestSync.setLastSync(LatestSync);
+		latestSync.setCreatedBy(getUser());
+		latestSync.setCreatedDateTime(LatestSync);
+		lastSyncRepository.save(latestSync);
 	}
 }
