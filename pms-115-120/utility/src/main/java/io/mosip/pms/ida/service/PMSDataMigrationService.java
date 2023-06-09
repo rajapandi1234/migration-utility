@@ -13,6 +13,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -50,6 +51,8 @@ public class PMSDataMigrationService {
     public static final String CERT_CHAIN_DATA_SHARE_URL = "certChainDatashareUrl";
 	
     public static final String PARTNER_DOMAIN = "partnerDomain";
+    
+    public static final String RUN_MODE_UPGRADE = "upgrade";
 
 	private static final Logger LOGGER = UtilityLogger.getLogger(PMSDataMigrationService.class);
 
@@ -70,6 +73,9 @@ public class PMSDataMigrationService {
 
 	@Autowired
 	private Environment environment;
+	
+	@Value("${mosip.pms.utility.run.mode:upgrade}")
+	private String runMode;
 
 	@Autowired
 	private ObjectMapper mapper;
@@ -84,8 +90,11 @@ public class PMSDataMigrationService {
 	private WebSubPublisher webSubPublisher;
 
 	public void initialize() {
-    	LocalDateTime lastSync = getLastSyncTimeStamp();
+		LocalDateTime lastSync = null;
     	LocalDateTime latestSync = LocalDateTime.now();
+		if(!runMode.equals(RUN_MODE_UPGRADE)) {
+			 lastSync = getLastSyncTimeStamp();
+		}
 		LOGGER.info("Started publishing the data");
 		try {
 				publishPartnerUpdated(lastSync,latestSync);
@@ -94,7 +103,9 @@ public class PMSDataMigrationService {
 				if(lastSync!=null) {
 					publishUpdateApiKey(lastSync,latestSync);
 				}
-				saveLatestSyncTimeStamp(latestSync);
+				if(!runMode.equals(RUN_MODE_UPGRADE)) {
+					saveLatestSyncTimeStamp(latestSync);
+				}
 		} catch (Exception e) {
 			LOGGER.error("Error occurred while publishing the data - " + e);
 		}
