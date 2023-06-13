@@ -90,6 +90,7 @@ public class PMSDataMigrationService {
 	private WebSubPublisher webSubPublisher;
 
 	public void initialize() {
+ 
 		LocalDateTime lastSync = null;
     	LocalDateTime latestSync = LocalDateTime.now();
 		if(!runMode.equals(RUN_MODE_UPGRADE)) {
@@ -107,7 +108,7 @@ public class PMSDataMigrationService {
 					saveLatestSyncTimeStamp(latestSync);
 				}
 		} catch (Exception e) {
-			LOGGER.error("Error occurred while publishing the data - " + e);
+			LOGGER.error("Error occurred while publishing the data - " ,e);
 		}
 	}
 
