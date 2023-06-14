@@ -13,13 +13,16 @@ For Running this utility as a cronjob:
 
 ## Build & run 
 
-a. Build
+Here is the link for [Helm Charts](https://github.com/mosip/mosip-helm/tree/develop/charts/pms-migration-utility) used to deploy this utility.
+
+a. Build and run in local
     ```
     $ cd utility
     $ mvn install -DskipTests=true -Dmaven.javadoc.skip=true -Dgpg.skip=true
+    $ java -jar target/Utility-0.0.1-SNAPSHOT.jar
     ```
 
-for Building a docker image
+for Building a docker image 
     ```
     $ docker build -t name:tag -f Dockerfile
     ```
