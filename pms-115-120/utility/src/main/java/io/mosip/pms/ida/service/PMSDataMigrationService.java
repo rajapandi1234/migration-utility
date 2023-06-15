@@ -3,6 +3,7 @@ package io.mosip.pms.ida.service;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -76,6 +77,9 @@ public class PMSDataMigrationService {
 	
 	@Value("${mosip.pms.utility.run.mode:upgrade}")
 	private String runMode;
+	
+	@Value("${mosip.pms.allowed.partner.types}")
+	private String allowedPartnerTypes;
 
 	@Autowired
 	private ObjectMapper mapper;
@@ -114,17 +118,20 @@ public class PMSDataMigrationService {
 
 	
 	public void publishPartnerUpdated(LocalDateTime lastSync, LocalDateTime onGoingSync) throws Exception {
+		List<String> partnerTypes = convertStringToList(allowedPartnerTypes);
 		List<Partner> partners = (lastSync == null) ? partnerRepository.findAll() : 
 			partnerRepository.findByCreatedDtimeOrUpdDtimeGreaterThanAndIsDeletedFalseOrIsDeletedIsNull(lastSync,onGoingSync);
 		Map<String,String> partnerDomainMap = certUtil.getPartnerDomainMap();
 		for(Partner partner : partners) {
-			String signedPartnerCert = certUtil.getCertificate("PMS",partner.getId());
-			String partnerDomain = partnerDomainMap.containsKey(partner.getPartnerTypeCode())?
-					partnerDomainMap.get(partner.getPartnerTypeCode()):partnerDomainMap.get("Auth_Partner");
-			LOGGER.info("Publishing the data for Partner :: " + partner.getId());
-			notify(MapperUtils.mapDataToPublishDto(partner, signedPartnerCert), EventType.PARTNER_UPDATED);
-			notify(certUtil.getDataShareurl(signedPartnerCert), partnerDomain);
-			LOGGER.info("Published the data for label :: " + partner.getId() );
+			if(partnerTypes.contains(partner.getPartnerTypeCode()) && partner.getCertificateAlias()!=null) {
+				String signedPartnerCert = certUtil.getCertificate("PMS",partner.getId());
+				String partnerDomain = partnerDomainMap.containsKey(partner.getPartnerTypeCode())?
+						partnerDomainMap.get(partner.getPartnerTypeCode()):partnerDomainMap.get("Auth_Partner");
+				LOGGER.info("Publishing the data for Partner :: " + partner.getId());
+				notify(MapperUtils.mapDataToPublishDto(partner, signedPartnerCert), EventType.PARTNER_UPDATED);
+				notify(certUtil.getDataShareurl(signedPartnerCert), partnerDomain);
+				LOGGER.info("Published the data for label :: " + partner.getId() );
+			}
 		}
 		partnerDomainMap.clear();
 	}
@@ -285,5 +292,9 @@ public class PMSDataMigrationService {
 		latestSync.setCreatedBy(getUser());
 		latestSync.setCreatedDateTime(LatestSync);
 		lastSyncRepository.save(latestSync);
+	}
+	
+	private List<String> convertStringToList(String commaSeparatedString){
+		return Arrays.asList(commaSeparatedString.split(","));
 	}
 }
