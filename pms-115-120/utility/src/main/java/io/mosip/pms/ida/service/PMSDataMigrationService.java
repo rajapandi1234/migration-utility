@@ -78,8 +78,8 @@ public class PMSDataMigrationService {
 	@Value("${mosip.pms.utility.run.mode:upgrade}")
 	private String runMode;
 	
-	@Value("${mosip.pms.allowed.partner.types}")
-	private String allowedPartnerTypes;
+	@Value("#{T(java.util.Arrays).asList('${mosip.pms.allowed.partner.types}')}")
+	private List<String> allowedPartnerTypes;
 
 	@Autowired
 	private ObjectMapper mapper;
@@ -118,12 +118,11 @@ public class PMSDataMigrationService {
 
 	
 	public void publishPartnerUpdated(LocalDateTime lastSync, LocalDateTime onGoingSync) throws Exception {
-		List<String> partnerTypes = convertStringToList(allowedPartnerTypes);
 		List<Partner> partners = (lastSync == null) ? partnerRepository.findAll() : 
 			partnerRepository.findByCreatedDtimeOrUpdDtimeGreaterThanAndIsDeletedFalseOrIsDeletedIsNull(lastSync,onGoingSync);
 		Map<String,String> partnerDomainMap = certUtil.getPartnerDomainMap();
 		for(Partner partner : partners) {
-			if(partnerTypes.contains(partner.getPartnerTypeCode()) && partner.getCertificateAlias()!=null) {
+			if(allowedPartnerTypes.contains(partner.getPartnerTypeCode()) && partner.getCertificateAlias()!=null) {
 				String signedPartnerCert = certUtil.getCertificate("PMS",partner.getId());
 				String partnerDomain = partnerDomainMap.containsKey(partner.getPartnerTypeCode())?
 						partnerDomainMap.get(partner.getPartnerTypeCode()):partnerDomainMap.get("Auth_Partner");
@@ -131,7 +130,8 @@ public class PMSDataMigrationService {
 				notify(MapperUtils.mapDataToPublishDto(partner, signedPartnerCert), EventType.PARTNER_UPDATED);
 				notify(certUtil.getDataShareurl(signedPartnerCert), partnerDomain);
 				LOGGER.info("Published the data for label :: " + partner.getId() );
-			}
+			} else
+				LOGGER.info("Skipped publishing since not in allowedPartnerTypes :: " + partner.getId() + " " + partner.getPartnerTypeCode());
 		}
 		partnerDomainMap.clear();
 	}
@@ -156,14 +156,21 @@ public class PMSDataMigrationService {
 			LOGGER.info("Publishing the data for partner :: "
 					+ partnerPolicy.getPartner().getId() + "  policy :: " + partnerPolicy.getPolicyId());
 			Optional<Partner> partnerFromDb = partnerRepository.findById(partnerPolicy.getPartner().getId());
+			if(!partnerFromDb.isPresent()) {
+				LOGGER.info("Skipped publishing since partner entry not present db :: " + partnerPolicy.getPartner().getId() );
+				continue;
+			}
 			Optional<AuthPolicy> validPolicy = authPolicyRepository.findById(partnerPolicy.getPolicyId());
-			notify(MapperUtils.mapDataToPublishDto(partnerFromDb.get(),
-					getPartnerCertificate(partnerFromDb.get().getCertificateAlias())),
-					MapperUtils.mapPolicyToPublishDto(validPolicy.get(),
-							getPolicyObject(validPolicy.get().getPolicyFileId())),
-					MapperUtils.mapKeyDataToPublishDto(partnerPolicy), EventType.APIKEY_APPROVED);
-			LOGGER.info("Published the data for partner :: "
-					+ partnerPolicy.getPartner().getId() + "  policy :: " + partnerPolicy.getPolicyId());
+			if(allowedPartnerTypes.contains(partnerFromDb.get().getPartnerTypeCode()) && partnerFromDb.get().getCertificateAlias()!=null) {
+				notify(MapperUtils.mapDataToPublishDto(partnerFromDb.get(),
+						getPartnerCertificate(partnerFromDb.get().getCertificateAlias())),
+						MapperUtils.mapPolicyToPublishDto(validPolicy.get(),
+								getPolicyObject(validPolicy.get().getPolicyFileId())),
+						MapperUtils.mapKeyDataToPublishDto(partnerPolicy), EventType.APIKEY_APPROVED);
+				LOGGER.info("Published the data for partner :: "
+						+ partnerPolicy.getPartner().getId() + "  policy :: " + partnerPolicy.getPolicyId());
+			} else
+				LOGGER.info("Skipped publishing since not in allowedPartnerTypes :: " + partnerFromDb.get().getId() + " " + partnerFromDb.get().getPartnerTypeCode());
 
 		}
 	}
@@ -294,7 +301,4 @@ public class PMSDataMigrationService {
 		lastSyncRepository.save(latestSync);
 	}
 	
-	private List<String> convertStringToList(String commaSeparatedString){
-		return Arrays.asList(commaSeparatedString.split(","));
-	}
 }
