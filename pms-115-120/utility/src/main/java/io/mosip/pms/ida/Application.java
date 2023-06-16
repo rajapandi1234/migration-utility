@@ -27,7 +27,7 @@ public class Application implements CommandLineRunner {
 
 	public static void main(String[] args) {
 		ConfigurableApplicationContext run = SpringApplication.run(Application.class, args);
-		SpringApplication.exit(run);
+		System.exit(SpringApplication.exit(run));
 	}
 
 	@Override
