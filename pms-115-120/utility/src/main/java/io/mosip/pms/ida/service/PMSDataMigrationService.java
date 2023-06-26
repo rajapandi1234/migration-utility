@@ -100,7 +100,7 @@ public class PMSDataMigrationService {
 		if(!runMode.equals(RUN_MODE_UPGRADE)) {
 			 lastSync = getLastSyncTimeStamp();
 		}
-		LOGGER.info("Started publishing the data");
+		LOGGER.info("------------------------Started publishing data from PMS to IDA------------------------");
 		try {
 				publishPartnerUpdated(lastSync,latestSync);
 				publishAPIKeyData(lastSync,latestSync);
@@ -114,6 +114,7 @@ public class PMSDataMigrationService {
 		} catch (Exception e) {
 			LOGGER.error("Error occurred while publishing the data - " ,e);
 		}
+		LOGGER.info("------------------------Published data from PMS to IDA------------------------");
 	}
 
 	
