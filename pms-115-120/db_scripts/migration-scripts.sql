@@ -11,6 +11,9 @@
 
 -- ------------------------------------------------------------------------------------------
 
+\c mosip_pms
+
+
 -- object: pms.last_sync_time_stamp | type: TABLE --
 -- DROP TABLE IF EXISTS pms.last_sync_time_stamp CASCADE;
 CREATE TABLE pms.last_sync_time_stamp(
@@ -36,3 +39,7 @@ COMMENT ON COLUMN pms.last_sync_time_stamp.upd_by IS 'Updated By : ID or name of
 COMMENT ON COLUMN pms.last_sync_time_stamp.upd_dtimes IS 'Updated DateTimestamp : Date and Timestamp when any of the fields in the record is updated with new values.';
 -- ddl-end --
 
+
+GRANT SELECT,INSERT,UPDATE,DELETE,TRUNCATE,REFERENCES
+   ON pms.last_sync_time_stamp IN SCHEMA pms
+   TO pmsuser;
