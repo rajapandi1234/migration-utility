@@ -55,7 +55,7 @@ For Running this utility as a cronjob:
 
 ## Build & run 
 
-Here is the link for [Helm Charts](https://github.com/mosip/mosip-helm/tree/develop/charts/pms-migration-utility) used to deploy this utility.
+Here is the link for [Helm Charts](https://github.com/mosip/mosip-infra/tree/release-1.2.0.1/deployment/v3/mosip/pms-migration-utility) used to deploy this utility.
 
 a. Build and run in local
 ```shell
