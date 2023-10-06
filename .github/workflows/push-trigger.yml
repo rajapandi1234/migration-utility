@@ -69,7 +69,7 @@ jobs:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
   build-dockers-pre-reg-113-115:
-    needs: build-maven-migration-utility
+    needs: build-maven-pre-reg-113-115
     strategy:
       matrix:
         include:
