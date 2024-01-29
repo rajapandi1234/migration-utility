@@ -12,7 +12,7 @@ tables based on `createdDt` or `lastUpdatedDt` whichever is latest.
 In `1.1.3` version of MOSIP, the encryption key was `REGISTRATION` which is now changed to a new key `PRE_REGISTRATION` in `1.1.5`. <br />
 This utility helps in migrating data from the `1.1.3` to the `1.1.5` version of MOSIP.
 
-Note:- This utility is applicable for Migration from 1.1.5 to 1.2.0.1 also if 1.1.5 is having old application before migration i.e. having old encryption key(REGISTRATION).
+Note:- This utility is applicable for migration from MOSIP version 1.1.5 to 1.2.0.1. This is applicable even if version 1.1.5 has the old encryption key (REGISTRATION).
 
 ## Scenario 1- Two different environments 
 
