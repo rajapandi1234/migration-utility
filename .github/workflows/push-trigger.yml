@@ -24,7 +24,7 @@ on:
 
 jobs:
   build-maven-migration-utility:
-    uses: mosip/kattu/.github/workflows/maven-build.yml@master-develop
+    uses: mosip/kattu/.github/workflows/maven-build.yml@master-java21
     with:
       SERVICE_LOCATION: pms-115-120/utility
       BUILD_ARTIFACT: utility
@@ -45,7 +45,7 @@ jobs:
             BUILD_ARTIFACT: 'utility'
       fail-fast: false
     name: ${{ matrix.SERVICE_NAME }}
-    uses: mosip/kattu/.github/workflows/docker-build.yml@master-develop
+    uses: mosip/kattu/.github/workflows/docker-build.yml@master-java21
     with:
       SERVICE_LOCATION: ${{ matrix.SERVICE_LOCATION }}
       SERVICE_NAME: ${{ matrix.SERVICE_NAME }}
@@ -57,7 +57,7 @@ jobs:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
   build-maven-pre-reg-113-115:
-    uses: mosip/kattu/.github/workflows/maven-build.yml@master-develop
+    uses: mosip/kattu/.github/workflows/maven-build.yml@master-java21
     with:
       SERVICE_LOCATION: pre-reg-113-115
       BUILD_ARTIFACT: ReEncryptUtility
@@ -78,7 +78,7 @@ jobs:
             BUILD_ARTIFACT: 'ReEncryptUtility'
       fail-fast: false
     name: ${{ matrix.SERVICE_NAME }}
-    uses: mosip/kattu/.github/workflows/docker-build.yml@master-develop
+    uses: mosip/kattu/.github/workflows/docker-build.yml@master-java21
     with:
       SERVICE_LOCATION: ${{ matrix.SERVICE_LOCATION }}
       SERVICE_NAME: ${{ matrix.SERVICE_NAME }}
