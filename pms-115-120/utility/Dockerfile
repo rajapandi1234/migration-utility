@@ -81,7 +81,7 @@ RUN mkdir -p ${loader_path}
 
 ENV loader_path_env=${loader_path}
 
-#COPY ./target/Utility-0.0.1-SNAPSHOT.jar   Utility-0.0.1-SNAPSHOT.jar
+##COPY ./target/Utility-0.0.1-SNAPSHOT.jar   Utility-0.0.1-SNAPSHOT.jar
 
 ADD ./target/*.jar /target/
 RUN find /target -name '*.jar' -executable -type f "-print0" | xargs "-0" cp -t / \
