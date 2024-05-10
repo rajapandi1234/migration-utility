@@ -65,10 +65,10 @@ ARG container_user_uid=1002
 ARG container_user_gid=1001
 
 # install packages and create user
-RUN apt-get -y update \
-&& apt-get install -y unzip \
-&& groupadd -g ${container_user_gid} ${container_user_group} \
-&& useradd -u ${container_user_uid} -g ${container_user_group} -s /bin/sh -m ${container_user}
+RUN apk -q update \
+&& apk add -q unzip \
+&& addgroup -g ${container_user_gid} ${container_user_group} \
+&& adduser -u /bin/sh -s ${container_user_uid} -G ${container_user_group} -h /home/${container_user} --disabled-password ${container_user}
 
 # set working directory for the user
 WORKDIR /home/${container_user}
