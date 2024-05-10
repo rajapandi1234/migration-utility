@@ -65,12 +65,10 @@ ARG container_user_uid=1002
 ARG container_user_gid=1001
 
 # install packages and create user
-RUN apk update \
-&& apk add unzip sudo\
-&& addgroup -g ${container_user_gid} -S ${container_user_group} \
-&& adduser -u ${container_user_uid} -G ${container_user_group} -S ${container_user} -h ${container_user} --disabled-password \
-&& $USER \
-&& sudo echo "%sudo ALL=(ALL) NOPASSWD:/home/${container_user}/${hsm_local_dir}/install.sh" >> /etc/sudoers
+RUN apt-get -y update \
+&& apt-get install -y unzip \
+&& groupadd -g ${container_user_gid} ${container_user_group} \
+&& useradd -u ${container_user_uid} -g ${container_user_group} -s /bin/sh -m ${container_user}
 
 # set working directory for the user
 WORKDIR /home/${container_user}
