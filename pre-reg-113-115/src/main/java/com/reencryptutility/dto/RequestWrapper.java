@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.sun.istack.NotNull;
 import lombok.Data;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 
 import java.time.LocalDateTime;
 
