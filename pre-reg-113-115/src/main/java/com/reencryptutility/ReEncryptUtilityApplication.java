@@ -17,7 +17,7 @@ import org.springframework.context.annotation.FilterType;
 import org.springframework.web.client.RestTemplate;
 
 @SpringBootApplication
-@ComponentScan(basePackages={ "io.mosip.commons.khazana.*" ,"com.reencryptutility.*", "io.mosip.*", "io.mosip.kernel.auth.defaultadapter"},
+@ComponentScan(basePackages={ "io.mosip.commons.khazana.*" ,"com.reencryptutility.*", "io.mosip.*" },
         excludeFilters = {
         @ComponentScan.Filter(type = FilterType.ASPECTJ,
                 pattern = {
