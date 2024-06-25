@@ -10,8 +10,7 @@ LABEL commit_id=${COMMIT_ID}
 LABEL build_time=${BUILD_TIME}
 
 RUN apt-get update \
-    && apt-get -y upgrade \
-    && apt-get -y install unzip
+    && apt-get -y install unzip sudo
 
 # can be passed during Docker build as build time environment for github branch to pickup configuration from.
 ARG spring_config_label
