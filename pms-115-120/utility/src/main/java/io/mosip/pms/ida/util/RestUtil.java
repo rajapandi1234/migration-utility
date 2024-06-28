@@ -5,23 +5,28 @@ import java.net.URI;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.security.cert.X509Certificate;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import javax.net.ssl.SSLContext;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
+import org.apache.hc.core5.http.Header;
+import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory;
+import org.apache.hc.client5.http.io.HttpClientConnectionManager;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.core5.http.ParseException;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.http.io.entity.StringEntity;
+import org.apache.hc.core5.ssl.SSLContexts;
+import org.apache.hc.core5.ssl.TrustStrategy;
 
-import org.apache.http.Header;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.ssl.TrustStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +51,8 @@ import io.mosip.kernel.core.util.TokenHandlerUtil;
 import io.mosip.pms.ida.dto.Metadata;
 import io.mosip.pms.ida.dto.SecretKeyRequest;
 import io.mosip.pms.ida.dto.TokenRequestDTO;
+
+import javax.net.ssl.SSLContext;
 
 @Component
 public class RestUtil {
@@ -242,15 +249,18 @@ public class RestUtil {
 	 * @throws KeyStoreException
 	 */
 	public RestTemplate getRestTemplate() throws KeyManagementException, NoSuchAlgorithmException, KeyStoreException {
-		TrustStrategy acceptingTrustStrategy = (X509Certificate[] chain, String authType) -> true;
-		SSLContext sslContext = org.apache.http.ssl.SSLContexts.custom().loadTrustMaterial(null, acceptingTrustStrategy)
-				.build();
-		SSLConnectionSocketFactory csf = new SSLConnectionSocketFactory(sslContext);
-		CloseableHttpClient httpClient = HttpClients.custom().setSSLSocketFactory(csf).build();
-		HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
-		requestFactory.setHttpClient(httpClient);
+			TrustStrategy acceptingTrustStrategy = (X509Certificate[] chain, String authType) -> true;
+			SSLContext sslContext = SSLContexts.custom()
+					.loadTrustMaterial(null, acceptingTrustStrategy).build();
+			SSLConnectionSocketFactory csf = new SSLConnectionSocketFactory(sslContext);
+			HttpClientConnectionManager connectionManager = PoolingHttpClientConnectionManagerBuilder.create().setSSLSocketFactory(csf).build();
+			CloseableHttpClient httpClient = HttpClients.custom().setConnectionManager(connectionManager).build();
+			HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
+			requestFactory.setHttpClient(httpClient);
+
 		return new RestTemplate(requestFactory);
 	}
+
 
 	/**
 	 * 
@@ -293,6 +303,7 @@ public class RestUtil {
 	 * @return
 	 * @throws IOException
 	 */
+
 	public String getToken() throws IOException {
 		String token = System.getProperty("token");
 		boolean isValid = false;
@@ -310,13 +321,13 @@ public class RestUtil {
 			tokenRequestDTO.setRequest(setSecretKeyRequestDTO());
 
 			Gson gson = new Gson();
-			HttpClient httpClient = HttpClientBuilder.create().build();
+			CloseableHttpClient httpClient = HttpClientBuilder.create().build();
 			HttpPost post = new HttpPost(environment.getProperty("service.token.request.issuerUrl"));
 			try {
 				StringEntity postingString = new StringEntity(gson.toJson(tokenRequestDTO));
 				post.setEntity(postingString);
 				post.setHeader("Content-type", "application/json");
-				HttpResponse response = httpClient.execute(post);
+				CloseableHttpResponse response = httpClient.execute(post);
 				Header[] cookie = response.getHeaders("Set-Cookie");
 				if (cookie.length == 0)
 					throw new IOException("cookie is empty. Could not generate new token.");

@@ -6,6 +6,9 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;
+import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
@@ -16,8 +19,9 @@ import io.mosip.pms.ida.websub.WebSubPublisher;
 
 @SpringBootApplication
 @Import(value = {WebSubPublisher.class,RestUtil.class})
-@ComponentScan(basePackages = {"io.mosip.pms.*", "io.mosip.kernel.auth.defaultadapter"})
-@EnableAutoConfiguration
+@ComponentScan(basePackages = {"io.mosip.*", "io.mosip.kernel.auth.defaultadapter"})
+@EnableAutoConfiguration(exclude = { DataSourceAutoConfiguration.class,
+		DataSourceTransactionManagerAutoConfiguration.class, HibernateJpaAutoConfiguration.class })
 public class Application implements CommandLineRunner {
 
 	@Autowired

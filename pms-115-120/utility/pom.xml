@@ -6,7 +6,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>io.mosip.pms</groupId>
 	<artifactId>Utility</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.2.1-SNAPSHOT</version>
 	<name>Migration-Utility</name>
 	<description>Utility</description>
 
@@ -33,20 +33,47 @@
 	</developers>
 
 	<properties>
-		<kernel-dataaccess-hibernate.version>1.2.0.1-B1</kernel-dataaccess-hibernate.version>
-		<kernel-websubclient-api.version>1.2.0.1-B1</kernel-websubclient-api.version>
-		<kernel.version>1.2.0.1-B1</kernel.version>
-		<maven.compiler.source>11</maven.compiler.source>
- 		<maven.compiler.target>11</maven.compiler.target>
+		<kernel-dataaccess-hibernate.version>1.2.1-SNAPSHOT</kernel-dataaccess-hibernate.version>
+		<kernel-websubclient-api.version>1.2.1-SNAPSHOT</kernel-websubclient-api.version>
+		<kernel.version>1.2.1-SNAPSHOT</kernel.version>
+		<maven.compiler.source>21</maven.compiler.source>
+ 		<maven.compiler.target>21</maven.compiler.target>
+		<jacoco.maven.plugin.version>0.8.11</jacoco.maven.plugin.version>
  		<maven.compiler.version>3.8.0</maven.compiler.version>
- 		<spring.boot.version>2.0.2.RELEASE</spring.boot.version>
- 		<java.version>11</java.version>
+ 		<java.version>21</java.version>
 	</properties>
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>io.mosip.kernel</groupId>
+				<artifactId>kernel-bom</artifactId>
+				<version>1.2.1-SNAPSHOT</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+
+		</dependencies>
+	</dependencyManagement>
 	<dependencies>
 		<dependency>
 		    <groupId>io.mosip.kernel</groupId>
 		    <artifactId>kernel-core</artifactId>
-		    <version>1.2.0.1-SNAPSHOT</version>
+		    <version>${kernel.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.bouncycastle</groupId>
+					<artifactId>bcprov-jdk15on</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.bouncycastle</groupId>
+					<artifactId>bcprov-jdk18on</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.bouncycastle</groupId>
+			<artifactId>bcpkix-jdk15on</artifactId>
+			<version>1.68</version>
 		</dependency>
 		<dependency>
 			<groupId>io.mosip.kernel</groupId>
@@ -56,8 +83,6 @@
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
-			<scope>runtime</scope>
-			<version>42.2.2</version>
 		</dependency>
 		<dependency>
 			<groupId>io.mosip.kernel</groupId>
@@ -67,7 +92,6 @@
 		<dependency>
 			<groupId>com.googlecode.json-simple</groupId>
 			<artifactId>json-simple</artifactId>
-			<version>1.1.1</version>
 		</dependency>
 		<dependency>
 			<groupId>io.mosip.kernel</groupId>
@@ -77,13 +101,17 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
-			<version>2.0.2.RELEASE</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.springframework.data</groupId>
+					<artifactId>spring-data-jpa</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
-			<version>2.0.2.RELEASE</version>
 			<exclusions>
 				<exclusion>
 					<groupId>org.junit.vintage</groupId>
@@ -94,12 +122,10 @@
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
-			<version>1.18.22</version>
 		</dependency>
 		<dependency>
 			<groupId>javax.validation</groupId>
 			<artifactId>validation-api</artifactId>
-			<version>2.0.1.Final</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.code.gson</groupId>
@@ -109,16 +135,24 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-configuration-processor</artifactId>
-			<version>2.0.2.RELEASE</version>
 			<optional>true</optional>
 		</dependency>
+		<dependency>
+			<groupId>org.junit.vintage</groupId>
+			<artifactId>junit-vintage-engine</artifactId>
+		</dependency>
+		<!--<dependency>
+			<groupId>io.mosip.kernel</groupId>
+			<artifactId>kernel-auth-adapter</artifactId>
+			<version>1.2.1-SNAPSHOT</version>
+		</dependency>-->
 	</dependencies>
 	<build>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
-				<version>2.0.2.RELEASE</version>
+				<version>3.2.3</version>
 				<configuration>
 					<layout>ZIP</layout>
 					<executable>true</executable>

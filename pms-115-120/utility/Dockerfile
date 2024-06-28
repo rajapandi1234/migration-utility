@@ -1,4 +1,4 @@
-FROM openjdk:11
+FROM eclipse-temurin:21-jre-alpine
 
 ARG SOURCE
 ARG COMMIT_HASH
@@ -59,16 +59,16 @@ ARG container_user=mosip
 ARG container_user_group=mosip
 
 # can be passed during Docker build as build time environment for github branch to pickup configuration from.
-ARG container_user_uid=1001
+ARG container_user_uid=1002
 
 # can be passed during Docker build as build time environment for github branch to pickup configuration from.
 ARG container_user_gid=1001
 
 # install packages and create user
-RUN apt-get -y update \
-&& apt-get install -y unzip \
-&& groupadd -g ${container_user_gid} ${container_user_group} \
-&& useradd -u ${container_user_uid} -g ${container_user_group} -s /bin/sh -m ${container_user}
+RUN apk -q update \
+&& apk add -q unzip \
+&& addgroup -g ${container_user_gid} ${container_user_group} \
+&& adduser -u ${container_user_uid} -G ${container_user_group} -S -h ${container_user} -D ${container_user} --disabled-password
 
 # set working directory for the user
 WORKDIR /home/${container_user}
@@ -81,7 +81,12 @@ RUN mkdir -p ${loader_path}
 
 ENV loader_path_env=${loader_path}
 
-COPY ./target/Utility-0.0.1-SNAPSHOT.jar   Utility-0.0.1-SNAPSHOT.jar
+##COPY ./target/Utility-0.0.1-SNAPSHOT.jar   Utility-0.0.1-SNAPSHOT.jar
+
+ADD ./target/*.jar /target/
+RUN find /target -name '*.jar' -executable -type f "-print0" | xargs "-0" cp -t / \
+    && rm -rf /target \
+    && mv /*.jar ${work_dir}/Utility-0.0.1-SNAPSHOT.jar
 
 # change permissions of file inside working dir
 RUN chown -R ${container_user}:${container_user} /home/${container_user}

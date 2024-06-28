@@ -165,11 +165,11 @@ public class ReEncrypt {
      * @param url
      */
     public void generateToken(String url) {
-        RequestWrapper<ObjectNode> requestWrapper = new RequestWrapper<>();
         ObjectNode request = mapper.createObjectNode();
         request.put("appId", appId);
         request.put("clientId", clientId);
         request.put("secretKey", secretKey);
+        RequestWrapper<ObjectNode> requestWrapper = new RequestWrapper<>(request);
         requestWrapper.setRequest(request);
         ResponseEntity<ResponseWrapper> response = restTemplate.postForEntity(url + "/v1/authmanager/authenticate/clientidsecretkey", requestWrapper,
                 ResponseWrapper.class);
@@ -203,7 +203,7 @@ public class ReEncrypt {
             dto.setData(new String(originalInput, StandardCharsets.UTF_8));
             dto.setReferenceId(decryptReferenceId);
             dto.setTimeStamp(localDateTime);
-            RequestWrapper<CryptoManagerRequestDTO> requestKernel = new RequestWrapper<>();
+            RequestWrapper<CryptoManagerRequestDTO> requestKernel = new RequestWrapper<>(dto);
             requestKernel.setRequest(dto);
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
@@ -239,7 +239,7 @@ public class ReEncrypt {
             dto.setReferenceId(encryptReferenceId);
             dto.setTimeStamp(localDateTime);
             dto.setPrependThumbprint(false);
-            RequestWrapper<CryptoManagerRequestDTO> requestKernel = new RequestWrapper<>();
+            RequestWrapper<CryptoManagerRequestDTO> requestKernel = new RequestWrapper<>(dto);
             requestKernel.setRequest(dto);
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
